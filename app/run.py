@@ -4,12 +4,14 @@ from aiogram.enums import ParseMode
 
 from app.core import logger, settings
 from app.bot import start
+from app.database import engine
 
 import asyncio
 
 
 async def on_shutdown() -> None:
-    ...
+    await engine.dispose()
+    logger.info("Database engine disposed.")
 
 
 async def main() -> None:
