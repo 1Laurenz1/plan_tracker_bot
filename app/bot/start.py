@@ -3,7 +3,7 @@ from aiogram.types import Message
 from aiogram.filters import CommandStart
 
 from app.core import logger
-
+from app.bot import build_main_menu
 
 router = Router()
 
@@ -14,7 +14,8 @@ async def cmd_start(message: Message) -> None:
     user_id = getattr(message.from_user, "id", None)
     
     await message.answer(
-        f'Hello, {username}!'
+        f'Hello, {username}!',
+        reply_markup=await build_main_menu()
     )
     
     logger.info(
