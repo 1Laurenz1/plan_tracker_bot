@@ -1,3 +1,1 @@
-from .reply import main_menu_builder, shedule_menu_builder
-
-__all__ = ['main_menu_builder', 'shedule_menu_builder']
+from .reply import build_main_menu, build_schedule_menu

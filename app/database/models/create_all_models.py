@@ -3,6 +3,7 @@ import asyncio
 from app.core import logger
 from .base_create import engine, Base
 from .user import User
+from .shedule import Schedule, ScheduleItem
 
 
 async def create_tables(drop_first: bool = False):

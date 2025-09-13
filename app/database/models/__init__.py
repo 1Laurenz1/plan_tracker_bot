@@ -5,9 +5,10 @@ from .base_create import (
 )
 
 from .user import User
+from .shedule import Schedule, ScheduleItem
 
 
 __all__ = [
     'Base', 'engine', 'AsyncSessionLocal',
-    'User'
+    'User', 'Schedule', 'ScheduleItem'
 ]
