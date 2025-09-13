@@ -22,4 +22,5 @@ async def create_tables(drop_first: bool = False):
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(create_tables(drop_first=False))
+    loop.run_until_complete(create_tables(drop_first=True))
+    # loop.run_until_complete(create_tables(drop_first=False))

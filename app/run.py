@@ -3,7 +3,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from app.core import logger, settings
-from app.bot import start
+from app.bot import start, CheckUserMiddleware
 from app.database import engine
 
 import asyncio
@@ -21,6 +21,8 @@ async def main() -> None:
     )
     
     dp = Dispatcher()
+    
+    dp.message.middleware(CheckUserMiddleware())
     
     dp.include_routers(
         start.router

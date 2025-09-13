@@ -1,4 +1,11 @@
-from .models import engine, Base, AsyncSessionLocal
+from .models import (
+    engine,
+    Base,
+    AsyncSessionLocal,
+    User
+)
 
-
-__all__ = ['Base', 'engine', 'AsyncSessionLocal']
+__all__ = [
+    'Base', 'engine', 'AsyncSessionLocal',
+    'User'
+]

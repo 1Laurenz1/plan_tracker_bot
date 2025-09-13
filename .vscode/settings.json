@@ -7,7 +7,7 @@
             "port": 5433,
             "driver": "PostgreSQL",
             "name": "PostgreSqlLocal",
-            "database": "demo",
+            "database": "plan_tracker_bot_db",
             "username": "postgres",
             "password": "toor",
             "connectionTimeout": 30

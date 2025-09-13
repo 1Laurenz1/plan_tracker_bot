@@ -4,7 +4,8 @@ from sqlalchemy import (
     BigInteger,
     ForeignKey,
     DateTime,
-    func
+    func,
+    BIGINT
 )
 
 from sqlalchemy.orm import (
@@ -25,7 +26,7 @@ class User(Base):
         primary_key=True,
         autoincrement=True
     )
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[BIGINT] = mapped_column(
         BigInteger,
         nullable=False,
         unique=True,

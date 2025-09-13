@@ -4,4 +4,10 @@ from .base_create import (
     AsyncSessionLocal
 )
 
-__all__ = ['Base', 'engine', 'AsyncSessionLocal']
+from .user import User
+
+
+__all__ = [
+    'Base', 'engine', 'AsyncSessionLocal',
+    'User'
+]
