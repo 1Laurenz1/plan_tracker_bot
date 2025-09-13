@@ -2,7 +2,9 @@ from .models import (
     engine,
     Base,
     AsyncSessionLocal,
-    User
+    User,
+    Schedule,
+    ScheduleItem
 )
 
 __all__ = [
