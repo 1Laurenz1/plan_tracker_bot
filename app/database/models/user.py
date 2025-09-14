@@ -10,7 +10,8 @@ from sqlalchemy import (
 
 from sqlalchemy.orm import (
     Mapped,
-    mapped_column
+    mapped_column,
+    relationship
 )
 
 from .base_create import Base
@@ -62,3 +63,5 @@ class User(Base):
         server_default=func.now(),
         onupdate=func.now()
     )
+    
+    schedules: Mapped[list["Schedule"]] = relationship("Schedule", back_populates="user")

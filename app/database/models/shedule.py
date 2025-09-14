@@ -10,13 +10,16 @@ from sqlalchemy import (
     Time,
     Boolean,
     Enum as SQLEnum,
-    func
+    func,
+    BIGINT
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship
+)
 
 from .base_create import Base
-from .user import User
-
 
 class ScheduleType(enum.Enum):
     DAILY = "DAILY"
@@ -41,9 +44,11 @@ class Schedule(Base):
         primary_key=True,
         autoincrement=True
     )
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[BIGINT] = mapped_column(
+        BigInteger,
         ForeignKey(
-            f"{User.__tablename__}.user_id"   
+            # f"{User.__tablename__}.user_id"
+            "users.user_id"
         ),
         nullable=False
     )
@@ -54,7 +59,7 @@ class Schedule(Base):
     type: Mapped[ScheduleType] = mapped_column(
         SQLEnum(ScheduleType, name="scheduletype"),
         nullable=False,
-        server_default="DAILY"
+        server_default=ScheduleType.DAILY.name
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -65,6 +70,8 @@ class Schedule(Base):
         server_default=func.now(),
         onupdate=func.now()
     )
+    
+    user: Mapped["User"] = relationship("User", back_populates="schedules")
 
 
 class ScheduleItem(Base):

@@ -3,7 +3,13 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from app.core import logger, settings
-from app.bot import start, CheckUserMiddleware
+from app.bot import (
+    start,
+    schedule_handlers,
+    main_menu,
+    CheckUserMiddleware,
+    EnsureUserMiddleware
+)
 from app.database import engine
 
 import asyncio
@@ -23,9 +29,12 @@ async def main() -> None:
     dp = Dispatcher()
     
     dp.message.middleware(CheckUserMiddleware())
+    dp.message.middleware(EnsureUserMiddleware())
     
     dp.include_routers(
-        start.router
+        start.router,
+        schedule_handlers.router,
+        main_menu.router
     )
     
     await bot.delete_webhook(drop_pending_updates=True)

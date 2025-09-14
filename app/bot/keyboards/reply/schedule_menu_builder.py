@@ -13,7 +13,7 @@ async def build_schedule_menu(buttons: List[str] = None) -> ReplyKeyboardMarkup:
     if buttons is None:
         buttons = [
             "📅Today", "📅This week",
-            "📅Edit existing shedule", "🆕Create new shedule",
+            "📅Edit existing schedule", "🆕Create new schedule",
             "🔙Back to main menu"
         ]
     
