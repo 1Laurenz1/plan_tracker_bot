@@ -1,4 +1,9 @@
-from .keyboards import build_main_menu, build_schedule_menu, inline_build_schedule_type
+from .keyboards import (
+    build_main_menu,
+    build_schedule_menu,
+    inline_build_schedule_type,
+    inline_build_edit_exists_schedule
+)
 from .middlewares import CheckUserMiddleware, EnsureUserMiddleware
 from .states import CreateSchedule
 

@@ -57,5 +57,26 @@ class ScheduleRepository:
 
         return None
     
+    
+    async def edit_exists_schedule(
+        self,
+        user_id: int,
+        name: str,
+        schedule_type: str
+    ) -> Optional[Schedule]:
+        async with AsyncSessionLocal() as session:
+            try:
+                ...
+            except IntegrityError as e:
+                await session.rollback()
+                logger.error(f"Integrity error while creating schedule '{name}' for user {user_id}: {e}")
+            except SQLAlchemyError as e:
+                await session.rollback()
+                logger.error(f"DB error while creating schedule '{name}' for user {user_id}: {e}")
+    
+    
+    
+    
+    
 
 schedule_repos = ScheduleRepository()

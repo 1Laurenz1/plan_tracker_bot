@@ -29,8 +29,6 @@ async def cmd_this_week(message: Message) -> None:
 async def cmd_edit_existing_shedule(message: Message) -> None:
     ...
 
-router = Router()
-
 
 @router.message(F.text == '🆕Create new schedule')
 async def cmd_create_new_schedule(message: Message, state: FSMContext) -> None:
