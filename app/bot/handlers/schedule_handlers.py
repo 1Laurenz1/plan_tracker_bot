@@ -35,17 +35,38 @@ async def cmd_edit_existing_shedule(message: Message) -> None:
     )
     
     await message.answer(
-        f'Все ваши расписания:',
-        reply_markup=await inline_build_edit_exists_schedule(schedules, 0, has_next)
+        f'Your schedules:',
+        reply_markup=await inline_build_edit_exists_schedule(
+            schedules, 0, has_next
+        )
     )
     
-@router.callback_query(F.data.startswit("schedule_select:"))
-async def process_schedule_select(callback: CallbackQuery):
+@router.callback_query(F.data.startswith("schedule_select:"))
+async def process_schedule_select(callback: CallbackQuery) -> None:
     schedule_id = int(callback.data.split(":")[1])
-    await callback.message.answer(f"Вы выбрали расписание с ID {schedule_id}")
+    await callback.message.answer(f"You have selected the schedule with ID: {schedule_id}")
     await callback.answer()
     
+
+@router.callback_query(F.data.startswith("schedule_page:"))
+async def process_schedule_page(callback: CallbackQuery) -> None:
+    user_id, username, first_name, last_name  = await get_user_info(callback)
     
+    page = int(callback.data.split(":")[1])
+    
+    schedules, has_next = await schedule_repos.get_user_schedules_paginated(
+        user_id = user_id,
+        page = page
+    )
+    
+    await callback.message.answer(
+        "Your schedules:",
+        reply_markup=await inline_build_edit_exists_schedule(
+            schedules, page, has_next
+        )
+    )
+    await callback.answer()
+
 
 
 @router.message(F.text == '🆕Create new schedule')

@@ -16,7 +16,7 @@ async def inline_build_edit_exists_schedule(schedules: list, page: int, has_next
                 callback_data=f"schedule_select:{s.id}"
             )
         )
-
+ 
     nav_buttons = []
     if page > 0:
         nav_buttons.append(
@@ -36,7 +36,7 @@ async def inline_build_edit_exists_schedule(schedules: list, page: int, has_next
     if nav_buttons:
         inline_builder.row(*nav_buttons)
         
-    # inline_builder.adjust(2)
+    inline_builder.adjust(2)
         
     logger.info('inline_build_edit_exists_schedule built successfull')
         
