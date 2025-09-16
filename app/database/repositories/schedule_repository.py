@@ -24,7 +24,6 @@ class ScheduleRepository:
     ) -> Optional[Schedule]:
         async with AsyncSessionLocal() as session:
             try:
-                # Check if user exists
                 user = await session.execute(
                     select(User).filter_by(user_id=user_id)
                 )
@@ -34,7 +33,6 @@ class ScheduleRepository:
                     logger.error(f"User with user_id {user_id} does not exist. Cannot create schedule.")
                     return None
 
-                # Proceed with creating the schedule
                 new_schedule = Schedule(
                     user_id=user_id,
                     name=name,
@@ -58,11 +56,10 @@ class ScheduleRepository:
         return None
     
     
-    async def edit_exists_schedule(
+    async def add_item_in_schedule(
         self,
         user_id: int,
-        name: str,
-        schedule_type: str
+        name: str
     ) -> Optional[Schedule]:
         async with AsyncSessionLocal() as session:
             try:
@@ -73,10 +70,39 @@ class ScheduleRepository:
             except SQLAlchemyError as e:
                 await session.rollback()
                 logger.error(f"DB error while creating schedule '{name}' for user {user_id}: {e}")
+
     
-    
-    
-    
+    async def get_user_schedules_paginated(
+        self,
+        user_id: int,
+        page: int
+    ) -> tuple[list[Schedule], bool]:
+        schedules_on_page = 5
+        offset = page * schedules_on_page
+
+        async with AsyncSessionLocal() as session:
+            try:
+                result = await session.execute(
+                    select(Schedule)
+                    .where(Schedule.user_id == user_id)
+                    .order_by(Schedule.created_at.desc())
+                    .offset(offset)
+                    .limit(schedules_on_page + 1)
+                )
+
+                schedules = result.scalars().all()
+
+                has_next = len(schedules) > schedules_on_page
+                return schedules[:schedules_on_page], has_next
+
+            except IntegrityError as e:
+                await session.rollback()
+                logger.error(f"Integrity error while fetching schedules for user {user_id}: {e}")
+                return [], False
+            except SQLAlchemyError as e:
+                await session.rollback()
+                logger.error(f"DB error while fetching schedules for user {user_id}: {e}")
+                return [], False
     
 
 schedule_repos = ScheduleRepository()

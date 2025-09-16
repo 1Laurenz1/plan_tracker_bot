@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from app.core import logger, get_user_info
-from app.bot import CreateSchedule, inline_build_schedule_type
+from app.bot import CreateSchedule, inline_build_schedule_type, inline_build_edit_exists_schedule
 from app.database import (
     schedule_repos,
     ScheduleType,
@@ -25,9 +25,27 @@ async def cmd_this_week(message: Message) -> None:
     ...
     
 
-@router.message(F.text == '📅Edit existing shedule')
+@router.message(F.text == '📅Edit existing schedule')
 async def cmd_edit_existing_shedule(message: Message) -> None:
-    ...
+    user_id, username, first_name, last_name  = await get_user_info(message)
+    
+    schedules, has_next = await schedule_repos.get_user_schedules_paginated(
+        user_id = user_id,
+        page = 0
+    )
+    
+    await message.answer(
+        f'Все ваши расписания:',
+        reply_markup=await inline_build_edit_exists_schedule(schedules, 0, has_next)
+    )
+    
+@router.callback_query(F.data.startswit("schedule_select:"))
+async def process_schedule_select(callback: CallbackQuery):
+    schedule_id = int(callback.data.split(":")[1])
+    await callback.message.answer(f"Вы выбрали расписание с ID {schedule_id}")
+    await callback.answer()
+    
+    
 
 
 @router.message(F.text == '🆕Create new schedule')
