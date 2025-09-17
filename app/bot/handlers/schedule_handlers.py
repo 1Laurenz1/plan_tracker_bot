@@ -4,7 +4,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from app.core import logger, get_user_info
-from app.bot import CreateSchedule, inline_build_schedule_type, inline_build_edit_exists_schedule
+from app.bot import (
+    CreateSchedule,
+    AddingItems,
+    inline_build_schedule_type,
+    inline_build_edit_exists_schedule
+)
 from app.database import (
     schedule_repos,
     ScheduleType,

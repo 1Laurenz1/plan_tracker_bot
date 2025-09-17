@@ -4,7 +4,16 @@ from .keyboards import (
     inline_build_schedule_type,
     inline_build_edit_exists_schedule
 )
-from .middlewares import CheckUserMiddleware, EnsureUserMiddleware
-from .states import CreateSchedule
+from .middlewares import (
+    CheckUserMiddleware,
+    EnsureUserMiddleware
+)
+from .states import (
+    CreateSchedule,
+    AddingItems
+)
 
-from .handlers import schedule_handlers, main_menu
+from .handlers import (
+    schedule_handlers,
+    main_menu
+)

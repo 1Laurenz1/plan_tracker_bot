@@ -9,7 +9,12 @@ from app.database import (
 )
 from app.core import logger
 
-from typing import List, Optional, Union
+from typing import (
+    List,
+    Dict,
+    Optional,
+    Union
+)
 
 
 class ScheduleRepository:
@@ -59,17 +64,54 @@ class ScheduleRepository:
     async def add_item_in_schedule(
         self,
         user_id: int,
-        name: str
-    ) -> Optional[Schedule]:
+        schedule_id: int,
+        items: List[Dict]
+    ) -> bool:
         async with AsyncSessionLocal() as session:
             try:
-                ...
+                exists_schedule_id = await session.execute(
+                    select(Schedule).
+                    where(Schedule.id == schedule_id)
+                )
+                
+                if not exists_schedule_id:
+                    return None
+                
+                schedule_items = [
+                    ScheduleItem(
+                        schedule_id=schedule_id,
+                        title=item.get("title"),
+                        description=item.get("description"),
+                        day_of_week=item.get("day_of_week"),
+                        time_start=item.get("time_start"),
+                        time_end=item.get("time_end"),
+                    )
+                    for item in items
+                ]
+                    
+                session.add_all(schedule_items)
+                session.commit()
+                await session.refresh(schedule_items)
+                    
+                logger.info(f"{len(items)} items added to schedule {schedule_id}")
+                
+                return True
+                
             except IntegrityError as e:
                 await session.rollback()
-                logger.error(f"Integrity error while creating schedule '{name}' for user {user_id}: {e}")
+                logger.error(
+                    f"Integrity error while adding items {schedule_items} "
+                    f"in schedule_id '{schedule_id}' for user {user_id}: {e}"
+                )
+                return None
             except SQLAlchemyError as e:
                 await session.rollback()
-                logger.error(f"DB error while creating schedule '{name}' for user {user_id}: {e}")
+                logger.error(
+                    f"DB error while adding items: {schedule_items} "
+                    f"in schedule_id '{schedule_id}' for user {user_id}: {e}"
+                )
+                return None
+        return False
 
     
     async def get_user_schedules_paginated(
