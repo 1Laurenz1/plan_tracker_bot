@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
-from app.core import logger, get_user_info
+from app.core import logger, get_user_info, parse_user_text
 from app.bot import (
     CreateSchedule,
     AddingItems,
@@ -49,7 +49,7 @@ async def cmd_edit_existing_shedule(message: Message) -> None:
 @router.callback_query(F.data.startswith("schedule_select:"))
 async def process_schedule_select(callback: CallbackQuery) -> None:
     schedule_id = int(callback.data.split(":")[1])
-    await callback.message.answer(f"You have selected the schedule with ID: {schedule_id}")
+    await callback.answer(f"You have selected the schedule with ID: {schedule_id}")
     await callback.answer()
     
 
