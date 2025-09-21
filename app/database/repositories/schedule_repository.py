@@ -1,5 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm import joinedload
+
+from datetime import datetime
 
 from app.database import (
     AsyncSessionLocal,
@@ -176,6 +179,42 @@ class ScheduleRepository:
                 await session.rollback()
                 logger.error(f"DB error while checking schedule for user {user_id}: {e}")
                 return None
+            
+    
+    async def check_today_schedule(
+        self,
+        user_id,
+    ) -> Optional[ScheduleItem]:
+        today = datetime.today().strftime("%A").upper()
+        
+        async with AsyncSessionLocal() as session:
+            try:
+                exists_items_schedule_id = await session.execute(
+                    select(ScheduleItem)
+                    .join(Schedule)
+                    .where(
+                        Schedule.user_id == user_id,
+                        ScheduleItem.day_of_week == today
+                    )
+                )
+                
+                items = exists_items_schedule_id.scalars().all()
+                
+                if not items:
+                    return None
+                
+                return items
+            except IntegrityError as e:
+                await session.rollback()
+                logger.error(f"Integrity error while checking today schedule for user {user_id}: {e}")
+                return None
+            except SQLAlchemyError as e:
+                await session.rollback()
+                logger.error(f"DB error while checking today schedule for user {user_id}: {e}")
+                return None
+    
+    
+    
     
 
 schedule_repos = ScheduleRepository()

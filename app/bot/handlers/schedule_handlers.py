@@ -23,7 +23,24 @@ router = Router()
 
 @router.message(F.text == '📅Today')
 async def cmd_today(message: Message) -> None:
-    ...
+    user_id, username, first_name, last_name = await get_user_info(message)
+
+    today_items = await schedule_repos.check_today_schedule(user_id)
+
+    if not today_items:
+        await message.answer("Today you have no tasks")
+        return
+
+    text_lines = []
+    for item in today_items:
+        line = f"{item.time_start.strftime('%H:%M')}–{item.time_end.strftime('%H:%M')} — {item.title}"
+        if item.description:
+            line += f" ({item.description})"
+        text_lines.append(line)
+
+    text = "📅 Today's schedule:\n\n" + "\n".join(text_lines)
+
+    await message.answer(text)
     
     
 @router.message(F.text == '📅This week')
