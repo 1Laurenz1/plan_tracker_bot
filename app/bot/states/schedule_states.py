@@ -8,4 +8,4 @@ class CreateSchedule(StatesGroup):
     
 
 class AddingItems(StatesGroup):
-    waiting_for_bulk_text = State()
+    waiting_for_schedule_items_text = State()

@@ -8,7 +8,8 @@ from app.bot import (
     CreateSchedule,
     AddingItems,
     inline_build_schedule_type,
-    inline_build_edit_exists_schedule
+    inline_build_edit_exists_schedule,
+    inline_build_select_day_of_week
 )
 from app.database import (
     schedule_repos,
@@ -45,43 +46,91 @@ async def cmd_edit_existing_shedule(message: Message) -> None:
             schedules, 0, has_next
         )
     )
-    
-@router.callback_query(F.data.startswith("schedule_select:"))
-async def process_schedule_select(callback: CallbackQuery) -> None:
-    user_id, username, first_name, last_name  = await get_user_info(callback)
 
-    
+
+@router.callback_query(F.data.startswith("schedule_select:"))
+async def process_schedule_select(callback: CallbackQuery, state: FSMContext) -> None:
+    user_id, username, first_name, last_name = await get_user_info(callback)
+
     schedule_id = int(callback.data.split(":")[1])
     await callback.answer(f"You have selected the schedule with ID: {schedule_id}")
-    
-    await callback.message.answer(
-        "Now, please send the full text of your daily plan."
-        "Use the following format (one activity per line):"
 
-        "06:00–07:30 — Wake up, morning routine (wash, breakfast, preparation)"
-        "07:30 — Go to the bus stop"
-        "08:00–15:30 — School"
-        "15:30–16:00 — Lunch + rest"
-        "16:00–16:50 — Language (English)"
-
-
-        "✅ Each line must contain time and activity."
-        "✅ You can optionally add a description in brackets ( )."
-    )
-    
-    raw_text = callback.message.text
-    
-    await parse_user_text(
-        raw_text
-    )
-    
-    await schedule_repos.add_item_in_schedule(
+    schedule = await schedule_repos.check_schedule_type(
         user_id,
         schedule_id,
-        # items
+        ["DAILY", "WEEKLY"]
     )
-    
-    await callback.answer()
+
+    if not schedule:
+        await callback.message.answer("Schedule not found.")
+        return
+
+    schedule_type = schedule.type
+
+    await state.update_data(schedule_id=schedule_id, schedule_type=schedule_type)
+
+    if schedule_type == ScheduleType.WEEKLY:
+        await callback.message.answer(
+            "Before proceeding, choose a day of the week for your plan.",
+            reply_markup=await inline_build_select_day_of_week()
+        )
+    elif schedule_type == ScheduleType.DAILY:
+        await state.set_state(AddingItems.waiting_for_schedule_items_text)
+        await callback.message.answer(
+            "Now, please send the full text of your daily plan.\n\n"
+            "Format:\n"
+            "06:00–07:30 — Wake up, morning routine (wash, breakfast)\n"
+            "07:30-8:00 — Go to the bus stop and school\n"
+            "08:00–15:30 — School\n"
+            "15:30–16:00 — Lunch + rest\n"
+            "16:00–16:50 — Language (English)\n\n"
+            "✅ Each line must contain time and activity.\n"
+            "✅ You can optionally add a description in brackets ( )."
+        )
+
+
+@router.callback_query(F.data.startswith("day_inline_"))
+async def process_day_select(callback: CallbackQuery, state: FSMContext) -> None:
+    day_selected = callback.data.replace("day_inline_", "").upper()
+
+    await state.update_data(day_of_week=DayOfWeek[day_selected])
+
+    await state.set_state(AddingItems.waiting_for_schedule_items_text)
+
+    await callback.message.answer(
+        f"You selected **{day_selected}**.\n\n"
+        "Now, please send the full text of your plan for this day.\n\n"
+        "Format:\n"
+        "06:00–07:30 — Wake up, morning routine (wash, breakfast)\n"
+        "07:30 — Go to the bus stop\n"
+        "08:00–15:30 — School\n"
+        "15:30–16:00 — Lunch + rest\n"
+        "16:00–16:50 — Language (English)\n\n"
+        "✅ Each line must contain time and activity.\n"
+        "✅ You can optionally add a description in brackets ( )."
+    )
+
+
+@router.message(AddingItems.waiting_for_schedule_items_text)
+async def process_plan_text(message: Message, state: FSMContext):
+    user_id = message.from_user.id
+    raw_text = message.text
+
+    data = await state.get_data()
+    schedule_id = data.get("schedule_id")
+    day_of_week = data.get("day_of_week", None)
+
+    items = await parse_user_text(raw_text, day_of_week)
+
+    await schedule_repos.add_item_in_schedule(
+        user_id=user_id,
+        schedule_id=schedule_id,
+        items=items
+    )
+
+    await message.answer(f"✅ Added {len(items)} items to schedule!")
+
+    await state.clear()
     
 
 @router.callback_query(F.data.startswith("schedule_page:"))
@@ -127,7 +176,7 @@ async def process_schedule_name(message: Message, state: FSMContext) -> None:
     )
 
 
-@router.callback_query()
+@router.callback_query(CreateSchedule.waiting_for_type)
 async def process_schedule_type(callback: CallbackQuery, state: FSMContext) -> None:
     data = await state.get_data()
     schedule_name = data.get("schedule_name")

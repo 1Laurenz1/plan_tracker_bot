@@ -11,13 +11,13 @@ async def inline_build_select_day_of_week(buttons: Dict[str, str] = None) -> Inl
     
     if not buttons:
         buttons = {
-            "Monday": "inline_monday",
-            "Tuesday": "inline_tuesday",
-            "Wednesday": "inline_wednesday",
-            "Thursday": "inline_thursday",
-            "Friday": "inline_friday",
-            "Saturday": "inline_saturday",
-            "Sunday": "inline_sunday",
+            "Monday": "day_inline_monday",
+            "Tuesday": "day_inline_tuesday",
+            "Wednesday": "day_inline_wednesday",
+            "Thursday": "day_inline_thursday",
+            "Friday": "day_inline_friday",
+            "Saturday": "day_inline_saturday",
+            "Sunday": "day_inline_sunday",
         }
         
     inline_builder.add(

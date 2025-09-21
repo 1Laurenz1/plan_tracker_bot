@@ -90,8 +90,10 @@ class ScheduleRepository:
                 ]
                     
                 session.add_all(schedule_items)
-                session.commit()
-                await session.refresh(schedule_items)
+                await session.commit()
+                
+                for item in schedule_items:
+                    await session.refresh(item)
                     
                 logger.info(f"{len(items)} items added to schedule {schedule_id}")
                 
@@ -149,6 +151,7 @@ class ScheduleRepository:
     
 
     async def check_schedule_type(
+        self,
         user_id: int,
         schedule_id: int,
         schedule_types: List[str]
