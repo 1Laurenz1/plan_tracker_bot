@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
 from datetime import datetime
+import calendar
 
 from app.database import (
     AsyncSessionLocal,
@@ -214,6 +215,37 @@ class ScheduleRepository:
                 return None
     
     
+    async def check_schedule_for_the_week(
+        self,
+        user_id
+    ) -> Optional[ScheduleItem]:
+        week_days = [day.upper() for day in calendar.day_name]
+        
+        async with AsyncSessionLocal() as session:
+            try:
+                exists_items_schedule_id = await session.execute(
+                    select(ScheduleItem)
+                    .join(Schedule)
+                    .where(
+                        Schedule.user_id == user_id,
+                        ScheduleItem.day_of_week.in_[week_days]
+                    )
+                )
+                
+                items = exists_items_schedule_id.scalars().all()
+                
+                if not items:
+                    return None
+
+                return items
+            except IntegrityError as e:
+                await session.rollback()
+                logger.error(f"Integrity error while checking for the week schedules for user {user_id}: {e}")
+                return None
+            except SQLAlchemyError as e:
+                await session.rollback()
+                logger.error(f"DB error while checking for the week schedules for user {user_id}: {e}")
+                return None
     
     
 
