@@ -146,5 +146,33 @@ class ScheduleRepository:
                 logger.error(f"DB error while fetching schedules for user {user_id}: {e}")
                 return [], False
     
+    
+
+    async def check_schedule_type(
+        user_id: int,
+        schedule_id: int,
+        schedule_types: List[str]
+    ) -> Optional[Schedule]:
+        async with AsyncSessionLocal() as session:
+            try:
+                result = await session.execute(
+                    select(Schedule).where(
+                        Schedule.user_id == user_id,
+                        Schedule.id == schedule_id,
+                        Schedule.type.in_(schedule_types)
+                    )
+                )
+                
+                return result.scalar_one_or_none()
+            
+            except IntegrityError as e:
+                await session.rollback()
+                logger.error(f"Integrity error while checking schedule for user {user_id}: {e}")
+                return None
+            except SQLAlchemyError as e:
+                await session.rollback()
+                logger.error(f"DB error while checking schedule for user {user_id}: {e}")
+                return None
+    
 
 schedule_repos = ScheduleRepository()

@@ -62,7 +62,7 @@ async def process_schedule_select(callback: CallbackQuery) -> None:
         "07:30 — Go to the bus stop"
         "08:00–15:30 — School"
         "15:30–16:00 — Lunch + rest"
-        "16:00–16:50 — Language (English / Lithuanian, alternate)"
+        "16:00–16:50 — Language (English)"
 
 
         "✅ Each line must contain time and activity."
@@ -71,7 +71,9 @@ async def process_schedule_select(callback: CallbackQuery) -> None:
     
     raw_text = callback.message.text
     
-    await parse_user_text()
+    await parse_user_text(
+        raw_text
+    )
     
     await schedule_repos.add_item_in_schedule(
         user_id,
