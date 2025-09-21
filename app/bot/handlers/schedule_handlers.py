@@ -48,8 +48,37 @@ async def cmd_edit_existing_shedule(message: Message) -> None:
     
 @router.callback_query(F.data.startswith("schedule_select:"))
 async def process_schedule_select(callback: CallbackQuery) -> None:
+    user_id, username, first_name, last_name  = await get_user_info(callback)
+
+    
     schedule_id = int(callback.data.split(":")[1])
     await callback.answer(f"You have selected the schedule with ID: {schedule_id}")
+    
+    await callback.message.answer(
+        "Now, please send the full text of your daily plan."
+        "Use the following format (one activity per line):"
+
+        "06:00–07:30 — Wake up, morning routine (wash, breakfast, preparation)"
+        "07:30 — Go to the bus stop"
+        "08:00–15:30 — School"
+        "15:30–16:00 — Lunch + rest"
+        "16:00–16:50 — Language (English / Lithuanian, alternate)"
+
+
+        "✅ Each line must contain time and activity."
+        "✅ You can optionally add a description in brackets ( )."
+    )
+    
+    raw_text = callback.message.text
+    
+    await parse_user_text()
+    
+    await schedule_repos.add_item_in_schedule(
+        user_id,
+        schedule_id,
+        # items
+    )
+    
     await callback.answer()
     
 

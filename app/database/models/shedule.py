@@ -96,7 +96,7 @@ class ScheduleItem(Base):
     )
     day_of_week: Mapped[DayOfWeek] = mapped_column(
         SQLEnum(DayOfWeek, name="day_of_week_enum"),
-        nullable=False
+        nullable=True
     )
     time_start: Mapped[time] = mapped_column(
         Time,
