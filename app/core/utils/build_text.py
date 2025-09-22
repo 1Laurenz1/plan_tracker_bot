@@ -1,0 +1,18 @@
+from typing import List, Any
+
+from app.core import logger
+
+
+async def build_text_day(day: str, items: List[Any]) -> str:
+    text = f"-- {day.upper()} --\n\n"
+    
+    if not items:
+        text += "No tasks for this day😪"
+    else:
+        for item in items:
+            start = item.time_start.strftime("%H:%M")
+            end = item.time_end.strftime("%H:%M")
+            desc = f"({item.description})" if item.description else ""
+            text += f"🕐 {start}:{end} - {item.title}{desc}\n"
+    
+    return text
