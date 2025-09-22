@@ -13,6 +13,7 @@ from app.bot import (
 )
 from app.database import (
     schedule_repos,
+    schedule_items_repos,
     ScheduleType,
     DayOfWeek
 )
@@ -25,7 +26,7 @@ router = Router()
 async def cmd_today(message: Message) -> None:
     user_id, username, first_name, last_name = await get_user_info(message)
 
-    today_items = await schedule_repos.check_today_schedule(user_id)
+    today_items = await schedule_items_repos.check_today_schedule(user_id)
 
     if not today_items:
         await message.answer("Today you have no tasks")

@@ -180,7 +180,12 @@ class ScheduleRepository:
                 await session.rollback()
                 logger.error(f"DB error while checking schedule for user {user_id}: {e}")
                 return None
-            
+    
+    
+class ScheduleItemsRepository:
+    def __init__(self):
+        pass
+    
     
     async def check_today_schedule(
         self,
@@ -248,5 +253,5 @@ class ScheduleRepository:
                 return None
     
     
-
 schedule_repos = ScheduleRepository()
+schedule_items_repos = ScheduleItemsRepository()
