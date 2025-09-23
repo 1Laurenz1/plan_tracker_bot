@@ -2,13 +2,19 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from app.core import logger, get_user_info, parse_user_text
+from app.core import (
+    logger,
+    get_user_info,
+    parse_user_text,
+    build_text_day
+)
 from app.bot import (
     CreateSchedule,
     AddingItems,
     inline_build_schedule_type,
     inline_build_edit_exists_schedule,
-    inline_build_select_day_of_week
+    inline_build_select_day_of_week,
+    inline_build_show_items_for_the_week
 )
 from app.database import (
     schedule_repos,
@@ -16,6 +22,8 @@ from app.database import (
     ScheduleType,
     DayOfWeek
 )
+
+import calendar
 
 
 router = Router()
@@ -45,7 +53,13 @@ async def cmd_today(message: Message) -> None:
     
 @router.message(F.text == '📅This week')
 async def cmd_this_week(message: Message) -> None:
-    ...
+    user_id, username, first_name, last_name = await get_user_info(message)
+    
+    weekly_items = await schedule_items_repos.check_schedule_for_the_week(user_id)
+    
+    if not weekly_items:
+        await message.answer("No tasks for this week😪")
+        return
     
 
 @router.message(F.text == '📅Edit existing schedule')

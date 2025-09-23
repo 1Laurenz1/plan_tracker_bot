@@ -233,7 +233,7 @@ class ScheduleItemsRepository:
                     .join(Schedule)
                     .where(
                         Schedule.user_id == user_id,
-                        ScheduleItem.day_of_week.in_[week_days]
+                        ScheduleItem.day_of_week.in_(week_days)
                     )
                 )
                 

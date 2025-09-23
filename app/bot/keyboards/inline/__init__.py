@@ -1,3 +1,4 @@
 from .inline_schedule_type_builder import inline_build_schedule_type
 from .inline_edit_schedule_builder import inline_build_edit_exists_schedule
 from .inline_select_day_of_week import inline_build_select_day_of_week
+from .inline_show_items_for_the_week import inline_build_show_items_for_the_week

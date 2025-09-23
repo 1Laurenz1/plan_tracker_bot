@@ -1,7 +1,5 @@
 from typing import List, Any
 
-from app.core import logger
-
 
 async def build_text_day(day: str, items: List[Any]) -> str:
     text = f"-- {day.upper()} --\n\n"

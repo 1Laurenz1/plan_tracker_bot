@@ -1,11 +1,9 @@
 from aiogram.utils.keyboard import (
     ReplyKeyboardBuilder,
-    InlineKeyboardBuilder
 )
 from aiogram.types import (
     KeyboardButton,
     ReplyKeyboardMarkup,
-    InlineKeyboardButton
 )
 
 from typing import List
