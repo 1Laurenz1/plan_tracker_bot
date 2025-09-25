@@ -1,8 +1,10 @@
 from typing import List, Any
 
 
-async def build_text_day(day: str, items: List[Any]) -> str:
-    text = f"-- {day.upper()} --\n\n"
+async def build_text_day(
+    day: str, items: List[Any]
+) -> str:
+    text = f"-- {day} --\n\n"
     
     if not items:
         text += "No tasks for this day😪"

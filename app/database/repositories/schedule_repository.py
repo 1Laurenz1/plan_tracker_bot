@@ -223,7 +223,7 @@ class ScheduleItemsRepository:
     async def check_schedule_for_the_week(
         self,
         user_id
-    ) -> Optional[ScheduleItem]:
+    ) -> List[ScheduleItem]:
         week_days = [day.upper() for day in calendar.day_name]
         
         async with AsyncSessionLocal() as session:
@@ -246,11 +246,11 @@ class ScheduleItemsRepository:
             except IntegrityError as e:
                 await session.rollback()
                 logger.error(f"Integrity error while checking for the week schedules for user {user_id}: {e}")
-                return None
+                return []
             except SQLAlchemyError as e:
                 await session.rollback()
                 logger.error(f"DB error while checking for the week schedules for user {user_id}: {e}")
-                return None
+                return []
     
     
 schedule_repos = ScheduleRepository()

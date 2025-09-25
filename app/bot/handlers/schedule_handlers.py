@@ -6,7 +6,8 @@ from app.core import (
     logger,
     get_user_info,
     parse_user_text,
-    build_text_day
+    build_text_day,
+    normalize_day_key
 )
 from app.bot import (
     CreateSchedule,
@@ -60,6 +61,37 @@ async def cmd_this_week(message: Message) -> None:
     if not weekly_items:
         await message.answer("No tasks for this week😪")
         return
+    
+    days_dict = {day.upper(): [] for day in calendar.day_name}
+    
+    for item in weekly_items:
+        key = await normalize_day_key(item.day_of_week)
+        
+        if key is None:
+            continue
+        if key not in days_dict:
+            days_dict[key] = []
+        days_dict[key].append(item)
+        
+        
+    days_with_items = [
+        day.upper() for day in calendar.day_name if days_dict.get(day.upper())
+    ]
+    
+    if not days_with_items:
+        await message.answer("No tasks for this week😪")
+        return
+    
+    day_index = 0
+    day_key = days_with_items[day_index]
+    text = await build_text_day(day_key, days_dict[day_key])
+    
+    await message.answer(
+        text,
+        reply_markup=await inline_build_show_items_for_the_week(
+            day_index, len(days_with_items)
+        )
+    )
     
 
 @router.message(F.text == '📅Edit existing schedule')
