@@ -94,6 +94,45 @@ async def cmd_this_week(message: Message) -> None:
     )
     
 
+@router.callback_query(F.data.startswith("week_day:"))
+async def inline_paginated_items_for_week(callback: CallbackQuery):
+    day_index = int(callback.data.split(":")[1])
+    
+    user_id, username, first_name, last_name = await get_user_info(callback)
+    weekly_items = await schedule_items_repos.check_schedule_for_the_week(user_id)
+    
+    if not weekly_items:
+        await callback.message.edit_text("No tasks for week😪")
+        return
+    
+    days_dict = {day.upper(): [] for day in calendar.day_name}
+    
+    for item in weekly_items:
+        key = await normalize_day_key(item.day_of_week)
+        
+        if key is None:
+            continue
+        
+        if key not in days_dict:
+            days_dict[key] = []
+        days_dict[key].append(item)
+        
+    days_with_items = [day.upper() for day in calendar.day_name if days_dict.get(day.upper())]
+    total_days = len(days_with_items)
+    
+    day_index = max(0, min(day_index, total_days - 1))
+    day_key = days_with_items[day_index]
+    
+    text = await build_text_day(day_key, days_dict[day_key])
+    
+    await callback.message.edit_text(
+        text,
+        reply_markup=await inline_build_show_items_for_the_week(day_index, total_days)
+    )
+    
+    await callback.answer()
+    
+
 @router.message(F.text == '📅Edit existing schedule')
 async def cmd_edit_existing_shedule(message: Message) -> None:
     user_id, username, first_name, last_name  = await get_user_info(message)
